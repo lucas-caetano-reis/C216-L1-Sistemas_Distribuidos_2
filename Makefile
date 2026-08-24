@@ -1,10 +1,12 @@
 .PHONY: help install test lint format run clean
 
+BACKEND_DIR := backend
 PYTHON := poetry run python
+POETRY := poetry install
 PYTEST := poetry run pytest
 UVICORN := poetry run uvicorn
 RUFF := poetry run ruff
-CLEAN := powershell -Command "Get-ChildItem -Path . -Directory -Recurse -Filter
+GET := powershell -Command "Get-ChildItem -Path . -Directory -Recurse -Filter
 REMOVE := | Remove-Item -Recurse -Force"
 
 help:
@@ -17,20 +19,20 @@ help:
 	@echo "  make clean    - remove arquivos temporários"
 
 install:
-	poetry install
+	cd $(BACKEND_DIR) && $(POETRY)
 
 test:
-	$(PYTEST)
+	cd $(BACKEND_DIR) && $(PYTEST)
 
 lint:
-	$(RUFF) check .
+	cd $(BACKEND_DIR) && $(RUFF) check .
 
 format:
-	$(RUFF) format .
+	cd $(BACKEND_DIR) && $(RUFF) format .
 
 run:
-	$(UVICORN) app.main:app --reload
+	cd $(BACKEND_DIR) && $(UVICORN) app.main:app --reload
 
 clean:
-	$(CLEAN) '__pycache__' $(REMOVE)
-	$(CLEAN) '.pytest_cache' $(REMOVE)
+	cd $(BACKEND_DIR) && $(GET) '__pycache__' $(REMOVE)
+	cd $(BACKEND_DIR) && $(GET) '.pytest_cache' $(REMOVE)
