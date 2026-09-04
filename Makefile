@@ -36,3 +36,4 @@ run:
 clean:
 	cd $(BACKEND_DIR) && $(GET) '__pycache__' $(REMOVE)
 	cd $(BACKEND_DIR) && $(GET) '.pytest_cache' $(REMOVE)
+	cd $(BACKEND_DIR) && $(GET) '.ruff_cache' $(REMOVE)
