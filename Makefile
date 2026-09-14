@@ -17,8 +17,9 @@ help:
 	@echo "Comandos disponíveis:"
 	@echo "  make install  - instala dependências"
 	@echo "  make test     - executa testes"
-	@echo "  make lint     - verifica o código"
-	@echo "  make format   - formata o código"
+	@echo "  make test-v   - executa testes e mostra detalhes das execuções"
+	@echo "  make lint     - verifica o código com ruff"
+	@echo "  make format   - formata o código com ruff"
 	@echo "  make run      - inicia o servidor"
 	@echo "  make clean    - remove arquivos temporários"
 	@echo "  make up       - sobe os containers"
@@ -32,10 +33,13 @@ help:
 	@echo "  make shell    - abre um shell no container da API"
 
 install:
-	cd $(BACKEND_DIR) && $(POETRY)
+	cd $(BACKEND_DIR) && $(POETRY) --no-root
 
 test:
 	cd $(BACKEND_DIR) && $(PYTEST)
+
+test-v:
+	cd $(BACKEND_DIR) && $(PYTEST) -v
 
 lint:
 	cd $(BACKEND_DIR) && $(RUFF) check .
