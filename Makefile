@@ -17,6 +17,7 @@ help:
 	@echo "Comandos disponíveis:"
 	@echo "  make install  - instala dependências"
 	@echo "  make test     - executa testes"
+	@echo "  make test-v   - executa testes e mostra detalhes das execuções"
 	@echo "  make lint     - verifica o código"
 	@echo "  make format   - formata o código"
 	@echo "  make run      - inicia o servidor"
@@ -36,6 +37,9 @@ install:
 
 test:
 	cd $(BACKEND_DIR) && $(PYTEST)
+
+test-v:
+	cd $(BACKEND_DIR) && $(PYTEST) -v
 
 lint:
 	cd $(BACKEND_DIR) && $(RUFF) check .
