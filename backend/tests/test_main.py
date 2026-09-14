@@ -14,7 +14,7 @@ def test_soma():
 # -------------------------------------
 
 def eh_par(numero):
-    return numero % 2 == 0
+    return numero % 3 == 0
 
 def test_numero_par():
     assert eh_par(4) is True
