@@ -1,5 +1,10 @@
 import pytest
 
+from fastapi.testclient import TestClient
+from fastapi import status
+
+from app.main import app
+
 def soma(numero):
   return numero + 2 >= 0
 
@@ -52,3 +57,10 @@ def test_nome_de_usuario(usuario):
   assert usuario["nome"] == "Maria"
 
 # -------------------------------------
+client = TestClient(app)
+
+def test_root():
+  response = client.get("/")
+
+  assert response.status_code == status.HTTP_200_OK
+  assert response.json() == {"message": "Olá, Sistemas Distribuídos!"}
