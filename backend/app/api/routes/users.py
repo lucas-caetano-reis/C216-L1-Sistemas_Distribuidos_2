@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.models.user import UserCreate, UserUpdate
+from app.schemas.item import UserCreate, UserUpdate
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
