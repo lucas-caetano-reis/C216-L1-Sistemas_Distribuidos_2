@@ -1,6 +1,7 @@
-.PHONY: help install test lint format run clean up up-build down down-v build logs logs-api ps shell db-upgrade db-downgrade db-current db-history db-migration db-psql
+.PHONY: help install test lint format run clean up up-build down down-v build logs logs-api ps shell db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-ci frontend-dev
 
 BACKEND_DIR := backend
+FRONTEND_DIR := frontend
 PYTHON := poetry run python
 POETRY := poetry install
 PYTEST := poetry run pytest
@@ -35,6 +36,8 @@ help:
 	@echo "  make db-history   - lista o historico de migrations"
 	@echo "  make db-migration MSG=\"descricao\" - gera uma nova migration"
 	@echo "  make db-psql      - abre o psql no container do PostgreSQL"
+	@echo "  make frontend-ci  - faz uma instalacao limpa das dependencias do frontend"
+	@echo "  make frontend-dev - inicia o frontend via Vite em um servidor local"
 
 install:
 	cd $(BACKEND_DIR) && $(POETRY) --no-root
@@ -104,3 +107,9 @@ db-migration:
 
 db-psql:
 	$(COMPOSE) exec db sh -c 'psql -U $$POSTGRES_USER -d $$POSTGRES_DB'
+
+frontend-ci:
+	cd $(FRONTEND_DIR) && npm ci
+
+frontend-dev:
+	cd $(FRONTEND_DIR) && npm run dev
