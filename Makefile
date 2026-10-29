@@ -1,4 +1,4 @@
-.PHONY: help install test lint format run clean up up-build down down-v build logs logs-api ps shell db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-ci frontend-dev
+.PHONY: help install test lint format run clean up up-build down down-v build logs logs-api ps shell db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-ci frontend-dev frontend-lint frontend-check frontend-format
 
 BACKEND_DIR := backend
 FRONTEND_DIR := frontend
@@ -38,6 +38,9 @@ help:
 	@echo "  make db-psql      - abre o psql no container do PostgreSQL"
 	@echo "  make frontend-ci  - faz uma instalacao limpa das dependencias do frontend"
 	@echo "  make frontend-dev - inicia o frontend via Vite em um servidor local"
+	@echo "  make frontend-lint     - verifica os arquivos do frontend com o Biome"
+	@echo "  make frontend-check    - faz o linting e procura por erros de formatacao, mas nao altera codigos"
+	@echo "  make frontend-format   - formata o frontend com o Biome"
 
 install:
 	cd $(BACKEND_DIR) && $(POETRY) --no-root
@@ -113,3 +116,12 @@ frontend-ci:
 
 frontend-dev:
 	cd $(FRONTEND_DIR) && npm run dev
+
+frontend-lint:
+	cd $(FRONTEND_DIR) && npm run lint
+
+frontend-check:
+	cd $(FRONTEND_DIR) && npm run check
+
+frontend-format:
+	cd $(FRONTEND_DIR) && npm run format
