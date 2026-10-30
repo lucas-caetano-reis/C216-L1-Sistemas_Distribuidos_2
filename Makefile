@@ -1,4 +1,4 @@
-.PHONY: help install test lint format run clean up up-build down down-v build logs logs-api ps shell db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-ci frontend-dev frontend-lint frontend-check frontend-format frontend-test frontend-chromium frontend-test-e2e
+.PHONY: help install test lint format run clean up up-build down down-v build logs logs-api ps shell db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-ci frontend-dev frontend-lint frontend-check frontend-format frontend-test frontend-chromium frontend-test-e2e frontend-build check-all
 
 BACKEND_DIR := backend
 FRONTEND_DIR := frontend
@@ -44,6 +44,8 @@ help:
 	@echo "  make frontend-test     - executa os testes do frontend com o Vitest"
 	@echo "  make frontend-chromium - instala o chromium na sua maquina (necessario para os testes E2E); uma instalacao por maquina"
 	@echo "  make frontend-test-e2e - executa os testes E2E com o Playwright"
+	@echo "  make frontend-build    - gera o build da producao do frontend"
+	@echo "  make check-all         - valida tanto o backend quanto o frontend"
 
 install:
 	cd $(BACKEND_DIR) && $(POETRY) --no-root
@@ -138,3 +140,8 @@ frontend-chromium:
 
 frontend-test-e2e:
 	cd $(FRONTEND_DIR) && npm run test:e2e
+
+frontend-build:
+	cd $(FRONTEND_DIR) && npm run build
+
+check-all:	lint test frontend-check frontend-test frontend-build frontend-test-e2e
