@@ -1,4 +1,4 @@
-.PHONY: help install test lint format run clean up up-build down down-v build logs logs-api ps shell db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-ci frontend-dev frontend-lint frontend-check frontend-format
+.PHONY: help install test lint format run clean up up-build down down-v build logs logs-api ps shell db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-ci frontend-dev frontend-lint frontend-check frontend-format frontend-test
 
 BACKEND_DIR := backend
 FRONTEND_DIR := frontend
@@ -30,7 +30,7 @@ help:
 	@echo "  make logs-api - acompanha apenas os logs da API"
 	@echo "  make ps       - mostra o status dos servicos"
 	@echo "  make shell    - abre um shell no container da API"
-	@echo "  make db-upgrade   - aplica as migrations pendentes (Alembic)"
+	@echo "  make db-upgrade   - aplica as migrations pendentes com o Alembic"
 	@echo "  make db-downgrade - desfaz a ultima migration"
 	@echo "  make db-current   - mostra a versao atual do banco"
 	@echo "  make db-history   - lista o historico de migrations"
@@ -41,6 +41,7 @@ help:
 	@echo "  make frontend-lint     - verifica os arquivos do frontend com o Biome"
 	@echo "  make frontend-check    - faz o linting e procura por erros de formatacao, mas nao altera codigos"
 	@echo "  make frontend-format   - formata o frontend com o Biome"
+	@echo "  make frontend-test     - executa os testes do frontend com o Vitest"
 
 install:
 	cd $(BACKEND_DIR) && $(POETRY) --no-root
@@ -125,3 +126,6 @@ frontend-check:
 
 frontend-format:
 	cd $(FRONTEND_DIR) && npm run format
+
+frontend-test:
+	cd $(FRONTEND_DIR) && npm run test
