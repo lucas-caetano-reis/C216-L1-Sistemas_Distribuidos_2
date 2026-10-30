@@ -1,4 +1,4 @@
-.PHONY: help install test lint format run clean up up-build down down-v build logs logs-api ps shell db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-ci frontend-dev frontend-lint frontend-check frontend-format frontend-test
+.PHONY: help install test lint format run clean up up-build down down-v build logs logs-api ps shell db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-ci frontend-dev frontend-lint frontend-check frontend-format frontend-test frontend-chromium frontend-test-e2e
 
 BACKEND_DIR := backend
 FRONTEND_DIR := frontend
@@ -42,6 +42,8 @@ help:
 	@echo "  make frontend-check    - faz o linting e procura por erros de formatacao, mas nao altera codigos"
 	@echo "  make frontend-format   - formata o frontend com o Biome"
 	@echo "  make frontend-test     - executa os testes do frontend com o Vitest"
+	@echo "  make frontend-chromium - instala o chromium na sua maquina (necessario para os testes E2E); uma instalacao por maquina"
+	@echo "  make frontend-test-e2e - executa os testes E2E com o Playwright"
 
 install:
 	cd $(BACKEND_DIR) && $(POETRY) --no-root
@@ -65,6 +67,7 @@ clean:
 	cd $(BACKEND_DIR) && $(GET) '__pycache__' $(REMOVE)
 	cd $(BACKEND_DIR) && $(GET) '.pytest_cache' $(REMOVE)
 	cd $(BACKEND_DIR) && $(GET) '.ruff_cache' $(REMOVE)
+	cd $(FRONTEND_DIR) && $(GET) 'test-results' $(REMOVE)
 
 up:
 	$(COMPOSE) up -d
@@ -129,3 +132,9 @@ frontend-format:
 
 frontend-test:
 	cd $(FRONTEND_DIR) && npm run test
+
+frontend-chromium:
+	cd $(FRONTEND_DIR) && npx playwright install chromium
+
+frontend-test-e2e:
+	cd $(FRONTEND_DIR) && npm run test:e2e
