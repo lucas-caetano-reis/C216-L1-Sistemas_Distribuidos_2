@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import App from "../../src/App";
+import App from "../../src/pages/App";
 
 describe("App", () => {
   it("começa com a lista vazia", () => {
