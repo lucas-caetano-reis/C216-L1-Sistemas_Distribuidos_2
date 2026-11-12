@@ -24,7 +24,7 @@ describe("validateItem", () => {
     expect(values).toEqual({ name: "Mouse", description: "sem fio" });
   });
 
-  it.each(["", "   "])("rejeita nome vazio (%s)", (name) => {
+  it.each(["", "   "])("rejeita nome vazio ou apenas com espaços", (name) => {
     expect(validateItem({ name, description: "" }).errors.name).toBe(
       "O nome é obrigatório.",
     );
