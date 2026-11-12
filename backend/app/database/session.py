@@ -10,7 +10,7 @@ engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 
 
 # Fábrica de sessões
-SessionLocal = sessionmaker(bind=engine, autoFlush=False, autoCommit=False)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
 # Fornecedora de sessões

@@ -1,47 +1,57 @@
-﻿import clsx from "clsx";
-import { useEffect, useRef, useState } from "react";
+import clsx from "clsx";
 
-export function ItemForm({ item, onSave, onCancel }) {
-  const [name, setName] = useState(item?.name ?? "");
-  const [description, setDescription] = useState(item?.description ?? "");
+import { useState } from "react";
+import { validateItem } from "../validation";
+
+export function ItemForm({
+  onAdd,
+  onUpdate,
+  onCancel,
+  item,
+  disabled = false,
+  saving = false,
+}) {
+  const [name, setName] = useState(item ? item.name : "");
+  const [description, setDescription] = useState(
+    item ? item.description || "" : "",
+  );
   const [errors, setErrors] = useState({});
-  const nameInput = useRef(null);
-  const isEditing = Boolean(item);
 
-  useEffect(() => {
-    if (isEditing) nameInput.current?.focus();
-  }, [isEditing]);
-
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    const saveErrors = onSave({ name, description });
-    setErrors(saveErrors);
-    if (Object.keys(saveErrors).length > 0) {
-      if (saveErrors.name) nameInput.current?.focus();
-      return;
-    }
+    if (disabled) return;
+    const result = validateItem({ name, description });
+    setErrors(result.errors);
+    if (Object.keys(result.errors).length > 0) return;
 
-    setName("");
-    setDescription("");
-    nameInput.current?.focus();
+    try {
+      if (item) {
+        await onUpdate(result.values);
+      } else {
+        await onAdd(result.values);
+      }
+      setName("");
+      setDescription("");
+    } catch (error) {
+      // Em caso de erro, os campos continuam preenchidos.
+      setErrors({ form: error.message });
+    }
   }
 
   return (
     <form
       onSubmit={handleSubmit}
       noValidate
-      aria-labelledby="item-form-heading"
+      aria-busy={saving}
       className={clsx(
         "rounded-lg border-4 border-cyan-600",
         "bg-white shadow-lg",
         "space-y-4 p-4",
       )}
     >
-      <h2 id="item-form-heading" className="text-lg sm:text-xl font-semibold">
-        {isEditing ? "Editar item" : "Novo item"}
-      </h2>
+      {item && <h2 className="font-semibold">Editar item</h2>}
       {errors.form && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-red-700">
           {errors.form}
         </p>
       )}
@@ -56,12 +66,11 @@ export function ItemForm({ item, onSave, onCancel }) {
           Nome
         </label>
         <input
-          ref={nameInput}
           id="item-name"
-          required
+          disabled={disabled}
           value={name}
           onChange={(event) => setName(event.target.value)}
-          aria-invalid={Boolean(errors.name)}
+          aria-invalid={errors.name ? "true" : "false"}
           aria-describedby={errors.name ? "item-name-error" : undefined}
           className={clsx(
             "w-full p-2",
@@ -91,6 +100,7 @@ export function ItemForm({ item, onSave, onCancel }) {
         </label>
         <textarea
           id="item-description"
+          disabled={disabled}
           value={description}
           onChange={(event) => setDescription(event.target.value)}
           rows={3}
@@ -101,37 +111,38 @@ export function ItemForm({ item, onSave, onCancel }) {
           )}
         />
       </div>
-      <div className="flex flex-wrap gap-3">
+      <button
+        type="submit"
+        disabled={disabled}
+        className={clsx(
+          "w-full",
+          "rounded bg-cyan-600",
+          "text-base sm:text-lg md:text-xl lg:text-2xl",
+          "font-medium text-white",
+          "px-4 py-2",
+          "transition-all duration-300",
+          "hover:bg-cyan-700 active:bg-cyan-700",
+          "focus:outline-2 focus:outline-offset-2",
+          "focus:outline-cyan-600 active:outline-cyan-600",
+          "cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed",
+        )}
+      >
+        {saving ? "Aguarde..." : item ? "Salvar alterações" : "Adicionar"}
+      </button>
+      {item && (
         <button
-          type="submit"
+          type="button"
+          onClick={onCancel}
+          disabled={disabled}
           className={clsx(
-            "flex-1 rounded bg-cyan-600",
-            "text-base sm:text-lg md:text-xl lg:text-2xl",
-            "font-medium text-white px-4 py-2",
-            "transition-colors duration-300",
-            "hover:bg-cyan-700 active:bg-cyan-700",
-            "focus:outline-2 focus:outline-offset-2 focus:outline-cyan-600",
-            "cursor-pointer",
+            "w-full rounded border-2 border-slate-400",
+            "px-4 py-2",
+            "cursor-pointer disabled:opacity-60",
           )}
         >
-          {isEditing ? "Salvar alterações" : "Adicionar"}
+          Cancelar
         </button>
-        {isEditing && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className={clsx(
-              "rounded border-2 border-slate-400",
-              "px-4 py-2",
-              "font-medium",
-              "cursor-pointer",
-              "hover:bg-slate-100 focus:outline-2 focus:outline-offset-2 focus:outline-slate-600",
-            )}
-          >
-            Cancelar
-          </button>
-        )}
-      </div>
+      )}
     </form>
   );
 }

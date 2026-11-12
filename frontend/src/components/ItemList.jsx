@@ -1,6 +1,6 @@
-﻿import clsx from "clsx";
+import clsx from "clsx";
 
-export function ItemList({ items, editingId, onEdit, onRemove }) {
+export function ItemList({ items, onEdit, onRemove, disabled = false }) {
   if (items.length === 0) {
     return (
       <p className="text-sm sm:text-base md:text-lg text-slate-900">
@@ -16,50 +16,39 @@ export function ItemList({ items, editingId, onEdit, onRemove }) {
           key={item.id}
           className={clsx(
             "rounded-lg border-4 border-cyan-600",
-            "bg-white p-4 shadow-sm space-y-3",
-            "transition-shadow duration-300 hover:shadow-xl",
-            editingId === item.id && "ring-2 ring-cyan-900 ring-offset-2",
+            "bg-white p-4 shadow-sm",
+            "transition-all duration-300",
+            "hover:border-cyan-700 active:border-cyan-700",
+            "hover:shadow-xl active:shadow-xl",
+            "hover:scale-101 active:scale-101",
+            "hover:-translate-y-1 active:-translate-y-1",
+            "cursor-pointer",
           )}
         >
-          <h3 className="text-base sm:text-lg md:text-xl font-medium break-words">
+          <span className="text-base sm:text-lg md:text-xl font-medium">
             {item.name}
-          </h3>
+          </span>
           {item.description && (
-            <p className="text-sm sm:text-base md:text-lg text-slate-900 whitespace-pre-wrap break-words">
+            <p className="text-sm sm:text-base md:text-lg text-slate-900">
               {item.description}
             </p>
           )}
-          {editingId === item.id && (
-            <p className="text-sm text-cyan-900">Em edição</p>
-          )}
-          <div className="flex flex-wrap gap-3">
+          <div className="flex gap-3 mt-3">
             <button
               type="button"
-              onClick={() => onEdit(item.id)}
-              disabled={editingId === item.id}
+              onClick={() => onEdit(item)}
+              disabled={disabled}
               aria-label={`Editar ${item.name}`}
-              className={clsx(
-                "rounded bg-cyan-600",
-                "px-4 py-2",
-                "font-medium text-white",
-                "cursor-pointer",
-                "hover:bg-cyan-700 focus:outline-2 focus:outline-offset-2 focus:outline-cyan-600",
-                "disabled:opacity-60 disabled:cursor-default",
-              )}
+              className="rounded bg-cyan-600 px-4 py-2 text-white cursor-pointer disabled:opacity-60"
             >
               Editar
             </button>
             <button
               type="button"
-              onClick={() => onRemove(item.id)}
+              onClick={() => onRemove(item)}
+              disabled={disabled}
               aria-label={`Remover ${item.name}`}
-              className={clsx(
-                "rounded bg-red-700",
-                "px-4 py-2",
-                "font-medium text-white",
-                "cursor-pointer",
-                "hover:bg-red-800 focus:outline-2 focus:outline-offset-2 focus:outline-red-700",
-              )}
+              className="rounded bg-red-700 px-4 py-2 text-white cursor-pointer disabled:opacity-60"
             >
               Remover
             </button>
