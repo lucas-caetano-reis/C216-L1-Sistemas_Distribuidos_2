@@ -1,66 +1,45 @@
-import pytest
+from fastapi import status
+from fastapi.testclient import TestClient
+
+from app.core.config import CORS_ORIGINS
+from app.main import app
+
+client = TestClient(app)
 
 
-def soma(numero):
-    return numero + 2 >= 0
+def test_root():
+    response = client.get("/")
+
+    assert response.status_code == status.HTTP_200_OK
 
 
-def test_soma():
-    assert soma(2) is True
+def test_cors_allowed_origin(client):
+    origin = CORS_ORIGINS[0]
+
+    response = client.options(
+        "/items/",
+        headers={
+            "Origin": origin,
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "Content-Type",
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.headers["access-control-allow-origin"] == origin
+    assert "POST" in response.headers["access-control-allow-methods"]
+    assert "content-type" in response.headers["access-control-allow-headers"].lower()
 
 
-# -------------------------------------
+def test_cors_unknown_origin(client):
+    response = client.options(
+        "/items/",
+        headers={
+            "Origin": "https://origem-desconhecida.invalid",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "Content-Type",
+        },
+    )
 
-
-def eh_par(numero):
-    return numero % 2 == 0
-
-
-def test_numero_par():
-    assert eh_par(4) is True
-
-
-@pytest.mark.parametrize(
-    "numero, esperado",
-    [
-        (2, True),
-        (3, False),
-        (4, True),
-        (5, False),
-    ],
-)
-def test_eh_par(numero, esperado):
-    assert (numero % 2 == 0) is esperado
-
-
-# -------------------------------------
-
-
-def dividir(a, b):
-    if b == 0:
-        raise ValueError("divisão por zero")
-
-    return a / b
-
-
-def test_divisao_por_zero():
-    with pytest.raises(ValueError):
-        dividir(10, 0)
-
-
-# -------------------------------------
-
-
-@pytest.fixture
-def usuario():
-    return {
-        "nome": "Maria",
-        "email": "maria@exemplo.com",
-    }
-
-
-def test_nome_de_usuario(usuario):
-    assert usuario["nome"] == "Maria"
-
-
-# -------------------------------------
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "access-control-allow-origin" not in response.headers

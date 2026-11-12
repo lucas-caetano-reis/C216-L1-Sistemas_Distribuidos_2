@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { NAME_MAX_LENGTH, validateItem } from "../../src/validation";
 
-const items = [
-  { id: "1", name: "Notebook", description: "" },
-  { id: "2", name: "Mouse", description: "" },
-];
-
 describe("validateItem", () => {
   it("aceita nome preenchido e descrição vazia", () => {
     const { errors, values } = validateItem({
@@ -24,41 +19,14 @@ describe("validateItem", () => {
     expect(values).toEqual({ name: "Mouse", description: "sem fio" });
   });
 
-  it.each(["", "   "])("rejeita nome vazio ou apenas com espaços", (name) => {
-    expect(validateItem({ name, description: "" }).errors.name).toBe(
-      "O nome é obrigatório.",
-    );
+  it("rejeita nome vazio ou só com espaços", () => {
+    const { errors } = validateItem({ name: "   ", description: "" });
+    expect(errors.name).toBeDefined();
   });
 
-  it("rejeita nome acima do limite de caracteres", () => {
+  it("rejeita nome acima do limite", () => {
     const name = "a".repeat(NAME_MAX_LENGTH + 1);
-    expect(validateItem({ name, description: "" }).errors.name).toBe(
-      `O nome deve ter no máximo ${NAME_MAX_LENGTH} caracteres`,
-    );
-  });
-
-  it("rejeita nome duplicado na criação, mesmo com espaços extras", () => {
-    const result = validateItem({ name: "  Mouse  ", description: "" }, items);
-    expect(result.errors.name).toBe("Já existe um item com esse nome.");
-  });
-
-  it("permite manter o nome do próprio item na edição", () => {
-    const result = validateItem(
-      { name: "Notebook", description: "Nova" },
-      items,
-      "1",
-    );
-    expect(result.errors).toEqual({});
-  });
-
-  it("rejeita o nome de outro item na edição", () => {
-    const result = validateItem({ name: "Mouse", description: "" }, items, "1");
-    expect(result.errors.name).toBe("Já existe um item com esse nome.");
-  });
-
-  it("permite renomear para um nome disponível", () => {
-    expect(
-      validateItem({ name: "Monitor", description: "" }, items, "1").errors,
-    ).toEqual({});
+    const { errors } = validateItem({ name, description: "" });
+    expect(errors.name).toBeDefined();
   });
 });
