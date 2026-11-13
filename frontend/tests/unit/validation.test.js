@@ -29,4 +29,27 @@ describe("validateItem", () => {
     const { errors } = validateItem({ name, description: "" });
     expect(errors.name).toBeDefined();
   });
+
+  it("aceita nome no limite permitido", () => {
+    const name = "a".repeat(NAME_MAX_LENGTH);
+    const { errors, values } = validateItem({ name, description: "" });
+
+    expect(errors).toEqual({});
+    expect(values.name).toBe(name);
+  });
+
+  it("normaliza descrição só com espaços", () => {
+    const { values } = validateItem({ name: "Mouse", description: "   " });
+    expect(values.description).toBe("");
+  });
+
+  it("retorna valores normalizados mesmo quando o nome é inválido", () => {
+    const { errors, values } = validateItem({
+      name: "   ",
+      description: "  sem fio  ",
+    });
+
+    expect(errors.name).toBeDefined();
+    expect(values).toEqual({ name: "", description: "sem fio" });
+  });
 });
