@@ -19,9 +19,14 @@ describe("validateItem", () => {
     expect(values).toEqual({ name: "Mouse", description: "sem fio" });
   });
 
-  it("rejeita nome vazio ou só com espaços", () => {
-    const { errors } = validateItem({ name: "   ", description: "" });
+  it("rejeita nome só com espaços e normaliza os valores", () => {
+    const { errors, values } = validateItem({
+      name: "   ",
+      description: "  sem fio  ",
+    });
+
     expect(errors.name).toBeDefined();
+    expect(values).toEqual({ name: "", description: "sem fio" });
   });
 
   it("rejeita nome acima do limite", () => {
@@ -41,15 +46,5 @@ describe("validateItem", () => {
   it("normaliza descrição só com espaços", () => {
     const { values } = validateItem({ name: "Mouse", description: "   " });
     expect(values.description).toBe("");
-  });
-
-  it("retorna valores normalizados mesmo quando o nome é inválido", () => {
-    const { errors, values } = validateItem({
-      name: "   ",
-      description: "  sem fio  ",
-    });
-
-    expect(errors.name).toBeDefined();
-    expect(values).toEqual({ name: "", description: "sem fio" });
   });
 });
