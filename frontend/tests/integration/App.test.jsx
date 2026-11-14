@@ -171,16 +171,13 @@ describe("App", () => {
 
   it("mantém os valores e mostra erro 409 quando o cadastro falha", async () => {
     const user = userEvent.setup();
-    stubFetch(
-      jsonResponse([]),
-      {
-        ok: false,
-        status: 409,
-        json: vi
-          .fn()
-          .mockResolvedValue({ detail: "Já existe um item com esse nome" }),
-      },
-    );
+    stubFetch(jsonResponse([]), {
+      ok: false,
+      status: 409,
+      json: vi
+        .fn()
+        .mockResolvedValue({ detail: "Já existe um item com esse nome" }),
+    });
     render(<App />);
     await screen.findByText("Nenhum item cadastrado.");
 
@@ -330,7 +327,9 @@ describe("App", () => {
       'Deseja remover o item "Notebook"?',
     );
     expect(await screen.findByText("Mouse")).toBeInTheDocument();
-    expect(screen.queryByText("Notebook", { exact: true })).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Notebook", { exact: true }),
+    ).not.toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent(
       "Item removido com sucesso.",
     );
@@ -357,7 +356,9 @@ describe("App", () => {
   it("mostra erro e mantém o item na lista quando a remoção falha", async () => {
     const user = userEvent.setup();
     stubFetch(
-      jsonResponse([{ id: "1", name: "Notebook", description: "14 polegadas" }]),
+      jsonResponse([
+        { id: "1", name: "Notebook", description: "14 polegadas" },
+      ]),
       {
         ok: false,
         status: 500,

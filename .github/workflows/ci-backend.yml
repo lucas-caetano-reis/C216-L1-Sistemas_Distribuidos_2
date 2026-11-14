@@ -4,11 +4,15 @@ on:
   push:
     paths:
       - "backend/**"
+      - "Makefile"
+      - "compose.yaml"
       - ".github/workflows/ci-backend.yml"
 
   pull_request:
     paths:
       - "backend/**"
+      - "Makefile"
+      - "compose.yaml"
       - ".github/workflows/ci-backend.yml"
 
 jobs:

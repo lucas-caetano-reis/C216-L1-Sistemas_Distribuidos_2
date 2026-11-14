@@ -1,4 +1,4 @@
-.PHONY: help install test lint format run clean up up-build down down-v build logs logs-api ps shell db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-ci frontend-dev frontend-lint frontend-check frontend-format frontend-test frontend-chromium frontend-test-e2e frontend-build check-all
+.PHONY: help install test lint format run clean up up-build down down-v build logs logs-api ps shell db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-ci frontend-dev frontend-lint frontend-check frontend-format frontend-test frontend-chromium frontend-test-e2e frontend-build e2e e2e-down check-all
 
 BACKEND_DIR := backend
 FRONTEND_DIR := frontend
@@ -10,6 +10,8 @@ RUFF := poetry run ruff
 GET := powershell -Command "Get-ChildItem -Path . -Directory -Recurse -Filter
 REMOVE := | Remove-Item -Recurse -Force"
 COMPOSE := docker compose
+E2E_COMPOSE := $(COMPOSE) -p lab-e2e
+E2E_DOWN := $(E2E_COMPOSE) down -v --remove-orphans
 ALEMBIC := exec api alembic
 
 help:
@@ -44,6 +46,8 @@ help:
 	@echo "  make frontend-test     - executa os testes do frontend com o Vitest"
 	@echo "  make frontend-chromium - instala o chromium na sua maquina (necessario para os testes E2E); uma instalacao por maquina"
 	@echo "  make frontend-test-e2e - executa os testes E2E com o Playwright"
+	@echo "  make e2e               - sobe uma stack isolada, executa os E2E e a remove"
+	@echo "  make e2e-down          - remove a stack E2E isolada apos uma falha"
 	@echo "  make frontend-build    - gera o build da producao do frontend"
 	@echo "  make check-all         - valida tanto o backend quanto o frontend"
 
@@ -141,7 +145,21 @@ frontend-chromium:
 frontend-test-e2e:
 	cd $(FRONTEND_DIR) && npm run test:e2e
 
+e2e: export API_PORT := 8001
+e2e: export FRONTEND_PORT := 5174
+e2e: export VITE_API_URL := http://localhost:8001
+e2e: export CORS_ORIGINS := http://localhost:5174,http://127.0.0.1:5174
+e2e: export E2E_BASE_URL := http://127.0.0.1:5174
+e2e:
+	$(E2E_COMPOSE) up -d --build --wait
+	$(E2E_COMPOSE) exec -T api alembic upgrade head
+	cd $(FRONTEND_DIR) && npm run test:e2e
+	$(E2E_DOWN)
+
+e2e-down:
+	$(E2E_DOWN)
+
 frontend-build:
 	cd $(FRONTEND_DIR) && npm run build
 
-check-all:	lint test frontend-check frontend-test frontend-build frontend-test-e2e
+check-all:	lint test frontend-check frontend-test frontend-build e2e
