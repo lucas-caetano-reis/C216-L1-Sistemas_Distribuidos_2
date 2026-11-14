@@ -1,0 +1,8 @@
+#Módulos do nodejs
+node_modules/
+
+dist/
+
+#Relatórios de testes
+playwright-report/
+test-results/
