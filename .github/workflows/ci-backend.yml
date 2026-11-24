@@ -70,3 +70,6 @@ jobs:
 
       - name: Run Tests
         run: poetry run pytest -v
+
+      - name: Verify coverage
+        run: poetry run pytest --cov

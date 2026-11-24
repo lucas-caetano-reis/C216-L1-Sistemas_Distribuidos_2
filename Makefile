@@ -1,4 +1,4 @@
-.PHONY: help version install info test test-v lint format run clean up up-build down down-v build logs logs-api ps back-sh
+.PHONY: help version install info test test-v cov lint format run clean up up-build down down-v build logs logs-api ps back-sh
 
 BACKEND := cd backend
 POETRY := poetry run
@@ -12,7 +12,8 @@ help:
 	@echo "  make install  - instala dependencias"
 	@echo "  make info     - verifica as informacoes sobre o ambiente virtual, versao do python e dependencias instaladas"
 	@echo "  make test     - executa testes"
-	@echo "  make test-v   - executa testes e mostra detalhes das execuções"
+	@echo "  make test-v   - executa testes e mostra detalhes das execucoes"
+	@echo "  make cov      - verifica a cobertura de testes"
 	@echo "  make lint     - verifica o codigo"
 	@echo "  make format   - formata o codigo"
 	@echo "  make run      - inicia o servidor"
@@ -24,7 +25,7 @@ help:
 	@echo "  make build    - constroi/reconstroi as imagens"
 	@echo "  make logs     - mostra os logs do container"
 	@echo "  make logs-api - mostra apenas os logs relativos a API"
-	@echo "  make ps       - mostra o status dos serviços"
+	@echo "  make ps       - mostra o status dos servicos"
 	@echo "  make back-sh  - abre um shell no container da API"
 
 version:
@@ -43,6 +44,9 @@ test:
 
 test-v:
 	$(BACKEND) && $(POETRY) pytest -v
+
+cov:
+	$(BACKEND) && $(POETRY) pytest --cov
 
 lint:
 	$(BACKEND) && $(POETRY) ruff check .
