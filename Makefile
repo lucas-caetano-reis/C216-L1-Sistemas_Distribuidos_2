@@ -2,7 +2,8 @@
 
 BACKEND := cd backend
 POETRY := poetry run
-GET := powershell -Command "Get-ChildItem -Path . -Directory -Recurse -Filter
+GET_DIR := powershell -Command "Get-ChildItem -Path . -Directory -Recurse -Filter
+GET_FILE := powershell -Command "Get-ChildItem -Path . -File -Recurse -Filter
 REMOVE := | Remove-Item -Recurse -Force"
 COMPOSE := docker compose
 
@@ -58,9 +59,10 @@ run:
 	$(BACKEND) && $(POETRY) uvicorn app.main:app --reload
 
 clean:
-	$(BACKEND) && $(GET) '__pycache__' $(REMOVE)
-	$(BACKEND) && $(GET) '.pytest_cache' $(REMOVE)
-	$(BACKEND) && $(GET) '.ruff_cache' $(REMOVE)
+	$(BACKEND) && $(GET_DIR) '__pycache__' $(REMOVE)
+	$(BACKEND) && $(GET_DIR) '.pytest_cache' $(REMOVE)
+	$(BACKEND) && $(GET_DIR) '.ruff_cache' $(REMOVE)
+	$(BACKEND) && $(GET_FILE) '.coverage' $(REMOVE)
 
 up:
 	$(COMPOSE) up -d
