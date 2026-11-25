@@ -1,4 +1,3 @@
-from datetime import datetime
 from enum import StrEnum
 from typing import Literal
 
@@ -40,8 +39,6 @@ class GameRead(BaseModel):
     anotacoes: str | None = None
     estado: GameStatus
     posicao: int
-    criado_em: datetime
-    atualizado_em: datetime | None = None
 
 
 class GamePositionUpdate(BaseModel):

@@ -1,5 +1,3 @@
-from datetime import UTC, datetime
-
 import pytest
 from pydantic import ValidationError
 
@@ -137,8 +135,6 @@ def test_criacao_sem_campos_obrigatorios(dados_jogo, campo):
     [
         ("id", 1),
         ("posicao", 1),
-        ("criado_em", "2026-11-24T12:00:00Z"),
-        ("atualizado_em", "2026-11-24T12:00:00Z"),
     ],
 )
 def test_criacao_com_campos_nao_permitidos(dados_jogo, campo, valor):
@@ -199,8 +195,6 @@ def test_atualizacao_sem_campos_obrigatorios(dados_atualizados, campo):
         ("id", 1),
         ("estado", GameStatus.JOGANDO),
         ("posicao", 2),
-        ("criado_em", "2026-11-24T12:00:00Z"),
-        ("atualizado_em", "2026-11-24T12:00:00Z"),
     ],
 )
 def test_atualizacao_com_campos_nao_permitidos(dados_atualizados, campo, valor):
@@ -259,15 +253,12 @@ def test_atualizacao_estado_invalido(estado):
 # --------------------------------------------------
 
 
-def test_leitura_jogo_recem_criado(dados_jogo):
-    data_criacao = datetime(2026, 11, 24, 12, 0, tzinfo=UTC)
-
+def test_leitura_jogo_criado(dados_jogo):
     jogo = GameRead(
         id=1,
         **dados_jogo,
         estado=GameStatus.QUERO_JOGAR,
         posicao=1,
-        criado_em=data_criacao,
     )
 
     assert jogo.id == 1
@@ -277,22 +268,20 @@ def test_leitura_jogo_recem_criado(dados_jogo):
     assert jogo.anotacoes == dados_jogo["anotacoes"]
     assert jogo.estado == GameStatus.QUERO_JOGAR
     assert jogo.posicao == 1
-    assert jogo.criado_em == data_criacao
-    assert jogo.atualizado_em is None
 
 
 def test_leitura_jogo_atualizado(dados_atualizados):
-    data_criacao = datetime(2026, 11, 24, 12, 0, tzinfo=UTC)
-    data_atualizacao = datetime(2026, 11, 24, 15, 0, tzinfo=UTC)
-
     jogo = GameRead(
         id=1,
         **dados_atualizados,
-        estado=GameStatus.QUERO_JOGAR,
+        estado=GameStatus.FINALIZADO,
         posicao=1,
-        criado_em=data_criacao,
-        atualizado_em=data_atualizacao,
     )
 
-    assert jogo.criado_em == data_criacao
-    assert jogo.atualizado_em == data_atualizacao
+    assert jogo.id == 1
+    assert jogo.titulo == dados_atualizados["titulo"]
+    assert jogo.plataforma == dados_atualizados["plataforma"]
+    assert jogo.vezes_finalizado == dados_atualizados["vezes_finalizado"]
+    assert jogo.anotacoes == dados_atualizados["anotacoes"]
+    assert jogo.estado == GameStatus.FINALIZADO
+    assert jogo.posicao == 1
