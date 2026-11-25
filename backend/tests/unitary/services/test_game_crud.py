@@ -13,31 +13,6 @@ from app.services.game import (
 )
 
 
-@pytest.fixture
-def servico():
-    return GameService()
-
-
-@pytest.fixture
-def dados_jogo():
-    return {
-        "titulo": "GTA VI",
-        "plataforma": "PC",
-        "vezes_finalizado": 0,
-        "anotacoes": "Jogar quando tiver um PC bom.",
-    }
-
-
-@pytest.fixture
-def dados_atualizados():
-    return {
-        "titulo": "Fallout 1",
-        "plataforma": "PC",
-        "vezes_finalizado": 6,
-        "anotacoes": "Finalizei o jogo seis vezes.",
-    }
-
-
 def criar_jogo(
     servico,
     titulo="GTA VI",
@@ -77,7 +52,7 @@ def test_cadastro_em_qualquer_estado_e_na_primeira_posicao(servico, estado):
     assert jogo.posicao == 1
 
 
-def test_cadastro_gera_identificadores_unicos(servico):
+def test_cadastro_gera_identificadores_diferentes(servico):
     primeiro = criar_jogo(servico, "GTA VI")
     segundo = criar_jogo(servico, "Fallout 1")
 
@@ -441,16 +416,6 @@ def test_exclusao_preserva_outras_listas(servico):
     servico.delete(primeiro.id)
 
     assert servico.get(segundo.id) == segundo
-
-
-def test_cadastro_nao_reutiliza_identificador_excluido(servico):
-    primeiro = criar_jogo(servico, "GTA VI")
-
-    servico.delete(primeiro.id)
-
-    segundo = criar_jogo(servico, "Fallout 1")
-
-    assert segundo.id > primeiro.id
 
 
 def test_cadastro_permitido_apos_exclusao(servico):

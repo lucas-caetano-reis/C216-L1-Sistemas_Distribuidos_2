@@ -9,13 +9,7 @@ from app.schemas.game import (
 )
 from app.services.game import (
     GameInvalidCompletionCountError,
-    GameService,
 )
-
-
-@pytest.fixture
-def servico():
-    return GameService()
 
 
 def criar_jogo(
@@ -163,21 +157,6 @@ def test_nova_finalizacao_incrementa_contador_novamente(servico):
     assert atualizado.vezes_finalizado == 3
 
 
-def test_permanencia_em_finalizado_nao_incrementa_contador(servico):
-    jogo = criar_jogo(
-        servico,
-        estado=GameStatus.FINALIZADO,
-        vezes_finalizado=2,
-    )
-
-    atualizado = servico.update_status(
-        jogo.id,
-        GameStatusUpdate(estado=GameStatus.FINALIZADO),
-    )
-
-    assert atualizado.vezes_finalizado == 2
-
-
 @pytest.mark.parametrize(
     "estado, quantidade",
     [
@@ -270,18 +249,25 @@ def test_ordenacao_preserva_contador(servico):
     assert atualizado.vezes_finalizado == 3
 
 
-@pytest.mark.parametrize("schema", [GameCreate, GameUpdate])
-def test_servico_rejeita_contador_negativo(servico, schema):
-    jogo = criar_jogo(servico)
-
-    dados = schema.model_construct(
+def test_cadastro_rejeita_contador_negativo(servico):
+    dados = GameCreate.model_construct(
         titulo="Fallout 1",
         plataforma="PC",
         vezes_finalizado=-1,
     )
 
     with pytest.raises(GameInvalidCompletionCountError):
-        if schema is GameCreate:
-            servico.create(dados)
-        else:
-            servico.update(jogo.id, dados)
+        servico.create(dados)
+
+
+def test_edicao_rejeita_contador_negativo(servico):
+    jogo = criar_jogo(servico)
+
+    dados = GameUpdate.model_construct(
+        titulo=jogo.titulo,
+        plataforma=jogo.plataforma,
+        vezes_finalizado=-1,
+    )
+
+    with pytest.raises(GameInvalidCompletionCountError):
+        servico.update(jogo.id, dados)

@@ -7,13 +7,7 @@ from app.schemas.game import (
 )
 from app.services.game import (
     GameNotFoundError,
-    GameService,
 )
-
-
-@pytest.fixture
-def servico():
-    return GameService()
 
 
 def criar_jogo(

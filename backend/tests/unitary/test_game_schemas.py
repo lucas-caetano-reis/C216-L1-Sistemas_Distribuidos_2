@@ -10,27 +10,6 @@ from app.schemas.game import (
     GameUpdate,
 )
 
-
-@pytest.fixture
-def dados_jogo():
-    return {
-        "titulo": "GTA VI",
-        "plataforma": "PC",
-        "vezes_finalizado": 0,
-        "anotacoes": "Jogar quando tiver um PC bom.",
-    }
-
-
-@pytest.fixture
-def dados_atualizados():
-    return {
-        "titulo": "Fallout 1",
-        "plataforma": "PC",
-        "vezes_finalizado": 6,
-        "anotacoes": "Finalizei o jogo seis vezes.",
-    }
-
-
 # --------------------------------------------------
 # GameCreate
 # --------------------------------------------------
@@ -43,41 +22,33 @@ def test_criacao_jogo_valido(dados_jogo):
     assert jogo.plataforma == dados_jogo["plataforma"]
     assert jogo.vezes_finalizado == dados_jogo["vezes_finalizado"]
     assert jogo.anotacoes == dados_jogo["anotacoes"]
+    assert jogo.estado == GameStatus.QUERO_JOGAR
 
 
-def test_criacao_valores_padrao():
-    jogo = GameCreate(titulo="GTA VI", plataforma="PC")
+def test_criacao_com_valores_padrao():
+    jogo = GameCreate(titulo="Baldur's Gate", plataforma="PC")
 
     assert jogo.vezes_finalizado == 0
     assert jogo.anotacoes is None
     assert jogo.estado == GameStatus.QUERO_JOGAR
 
 
-@pytest.mark.parametrize("titulo", ["", "   ", "a" * 201])
-def test_criacao_titulo_invalido(dados_jogo, titulo):
-    dados_jogo["titulo"] = titulo
-
-    with pytest.raises(ValidationError):
-        GameCreate(**dados_jogo)
-
-
-@pytest.mark.parametrize("plataforma", ["", "   ", "a" * 51])
-def test_criacao_plataforma_invalida(dados_jogo, plataforma):
-    dados_jogo["plataforma"] = plataforma
-
-    with pytest.raises(ValidationError):
-        GameCreate(**dados_jogo)
-
-
-def test_criacao_contador_negativo(dados_jogo):
-    dados_jogo["vezes_finalizado"] = -1
-
-    with pytest.raises(ValidationError):
-        GameCreate(**dados_jogo)
-
-
-def test_criacao_anotacoes_muito_longas(dados_jogo):
-    dados_jogo["anotacoes"] = "a" * 2001
+@pytest.mark.parametrize(
+    "campo, valor",
+    [
+        ("titulo", ""),
+        ("titulo", "   "),
+        ("titulo", "a" * 201),
+        ("plataforma", ""),
+        ("plataforma", "   "),
+        ("plataforma", "a" * 51),
+        ("anotacoes", "a" * 2001),
+        ("vezes_finalizado", -1),
+        ("estado", "abandonado"),
+    ],
+)
+def test_criacao_com_valores_invalidos(dados_jogo, campo, valor):
+    dados_jogo[campo] = valor
 
     with pytest.raises(ValidationError):
         GameCreate(**dados_jogo)
@@ -86,37 +57,29 @@ def test_criacao_anotacoes_muito_longas(dados_jogo):
 @pytest.mark.parametrize("estado", list(GameStatus))
 def test_criacao_estado_valido(dados_jogo, estado):
     dados_jogo["estado"] = estado
-    dados_jogo["vezes_finalizado"] = 1
 
     jogo = GameCreate(**dados_jogo)
 
     assert jogo.estado == estado
 
 
-def test_criacao_estado_invalido(dados_jogo):
-    dados_jogo["estado"] = "abandonado"
-
-    with pytest.raises(ValidationError):
-        GameCreate(**dados_jogo)
-
-
 def test_criacao_jogo_finalizado(dados_jogo):
     dados_jogo["estado"] = GameStatus.FINALIZADO
-    dados_jogo["vezes_finalizado"] = 2
+    dados_jogo["vezes_finalizado"] = 1
 
     jogo = GameCreate(**dados_jogo)
 
     assert jogo.estado == GameStatus.FINALIZADO
-    assert jogo.vezes_finalizado == 2
+    assert jogo.vezes_finalizado == 1
 
 
 def test_criacao_remove_espacos(dados_jogo):
-    dados_jogo["titulo"] = "  GTA VI  "
+    dados_jogo["titulo"] = "  Fallout 4  "
     dados_jogo["plataforma"] = "  PC  "
 
     jogo = GameCreate(**dados_jogo)
 
-    assert jogo.titulo == "GTA VI"
+    assert jogo.titulo == "Fallout 4"
     assert jogo.plataforma == "PC"
 
 
@@ -249,28 +212,12 @@ def test_atualizacao_estado_invalido():
 # --------------------------------------------------
 
 
-def test_leitura_jogo_criado(dados_jogo):
-    jogo = GameRead(
-        id=1,
-        **dados_jogo,
-        estado=GameStatus.QUERO_JOGAR,
-        posicao=1,
-    )
-
-    assert jogo.id == 1
-    assert jogo.titulo == dados_jogo["titulo"]
-    assert jogo.plataforma == dados_jogo["plataforma"]
-    assert jogo.vezes_finalizado == dados_jogo["vezes_finalizado"]
-    assert jogo.anotacoes == dados_jogo["anotacoes"]
-    assert jogo.estado == GameStatus.QUERO_JOGAR
-    assert jogo.posicao == 1
-
-
-def test_leitura_jogo_atualizado(dados_atualizados):
+@pytest.mark.parametrize("estado", list(GameStatus))
+def test_leitura_jogo_atualizado(dados_atualizados, estado):
     jogo = GameRead(
         id=1,
         **dados_atualizados,
-        estado=GameStatus.FINALIZADO,
+        estado=estado,
         posicao=1,
     )
 
@@ -279,5 +226,5 @@ def test_leitura_jogo_atualizado(dados_atualizados):
     assert jogo.plataforma == dados_atualizados["plataforma"]
     assert jogo.vezes_finalizado == dados_atualizados["vezes_finalizado"]
     assert jogo.anotacoes == dados_atualizados["anotacoes"]
-    assert jogo.estado == GameStatus.FINALIZADO
+    assert jogo.estado == estado
     assert jogo.posicao == 1
