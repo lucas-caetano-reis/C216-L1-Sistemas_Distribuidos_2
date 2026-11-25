@@ -1,4 +1,4 @@
-.PHONY: help version install info test test-v cov lint format run clean up up-build down down-v build logs logs-api ps back-sh
+.PHONY: help version install info test test-v test-unit test-int cov lint format run clean up up-build down down-v build logs logs-api ps back-sh
 
 BACKEND := cd backend
 POETRY := poetry run
@@ -12,8 +12,10 @@ help:
 	@echo "  make version  - verifica a versao do poetry na maquina"
 	@echo "  make install  - instala dependencias"
 	@echo "  make info     - verifica as informacoes sobre o ambiente virtual, versao do python e dependencias instaladas"
-	@echo "  make test     - executa testes"
-	@echo "  make test-v   - executa testes e mostra detalhes das execucoes"
+	@echo "  make test     - executa todos os testes"
+	@echo "  make test-v   - executa todos os testes e mostra detalhes das execucoes"
+	@echo "  make test-unit  - executa todos os testes unitarios"
+	@echo "  make test-int   - executa todos os testes de integracao"
 	@echo "  make cov      - verifica a cobertura de testes"
 	@echo "  make lint     - verifica o codigo"
 	@echo "  make format   - formata o codigo"
@@ -46,8 +48,14 @@ test:
 test-v:
 	$(BACKEND) && $(POETRY) pytest -v
 
+test-unit:
+	$(BACKEND) && $(POETRY) pytest tests/unitary/ -v
+
+test-int:
+	$(BACKEND) && $(POETRY) pytest tests/integration/ -v
+
 cov:
-	$(BACKEND) && $(POETRY) pytest --cov
+	$(BACKEND) && $(POETRY) pytest --cov=app
 
 lint:
 	$(BACKEND) && $(POETRY) ruff check .
